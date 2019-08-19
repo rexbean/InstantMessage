@@ -1,0 +1,32 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["airbnb", "prettier", "prettier/react", "plugin:prettier/recommended"],
+
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+
+  "env": {
+    "es6": true,
+    "browser": true,
+    "jest": true
+  },
+
+  "plugins": ["react", "prettier"],
+
+  "rules": {
+    "class-methods-use-this": "off",
+    "react/jsx-filename-extension": [1, { "extensions": [".js", "jsx"] }],
+    "react/no-this-in-sfc": 0,
+    "react/dstructuring-assignment": 0,
+    "react/jsx-one-expression-per-line": 0,
+    "no-return-assign": ["off"],
+    "max-len": ["error", { "code": 100 }],
+    "prefer-promise-reject-errors": ["off"],
+    "prettier/prettier": "error"
+  }
+}
