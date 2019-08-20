@@ -11,6 +11,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
 import { Login_VM } from '../stores/models/LoginScreenVM';
+import { CometChat } from '@cometchat-pro/chat';
+import { apiKey } from '../const';
 
 
 const styles = StyleSheet.create({
@@ -94,6 +96,14 @@ class LoginScreen extends Component {
     const { username, password, navigation } = this.props;
 
     // Login Successfully
+    CometChat.login(username, apiKey).then(
+      user => {
+        Alert.alert('Login Result', `Login Successful: ${ user }`);
+      },
+      error => {
+        Alert.alert('Login Result',`Login failed with exception: ${ error }`);
+      },
+    );
     navigation.navigate('Main');
   }
 

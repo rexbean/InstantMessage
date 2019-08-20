@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@cometchat-pro/chat": "^1.8.6",
     "@rematch/core": "^1.1.0",
     "babel-eslint": "^10.0.2",
     "eslint-config-airbnb": "^17.1.1",
