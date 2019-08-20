@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native';
 import NewMsgIcon from './NewMsgIcon';
-import JMessage from 'jmessage-react-plugin';
 
 const styles = StyleSheet.create({
   container: {

@@ -10,7 +10,6 @@ import {
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
-import JMessage from 'jmessage-react-plugin';
 import { Register_VM } from '../stores/models/RegisterScreenVM';
 
 
@@ -93,12 +92,9 @@ class RegisterScreen extends Component {
   onRegisterPress() {
     const { navigation, username, password } = this.props;
 
-    JMessage.register({ username, password }, () => {
-        Alert.alert('register succeed');
-        navigation.navigate('Main');
-    }, error => {
-        Alert.alert('register failed', JSON.stringify(error));
-    })
+    // Create User here IMClient
+    // using redux function
+
   }
 
   passwordInputStyle(color) {

@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { NewContact_VM } from '../stores/models/NewContactScreenVM';
-import JMessage from 'jmessage-react-plugin';
 
 const styles = StyleSheet.create({
   container: {
@@ -69,20 +68,7 @@ class NewContactScreen extends Component {
 
   onSearch() {
     const { username, appKey } = this.props;
-    const params = {
-      username,
-      appKey,
-    };
-
-    JMessage.getUserInfo(
-      params,
-      userInfo => {
-        this.setState({ user: userInfo });
-      },
-      error => {
-        Alert.alert('error', error);
-      },
-    );
+    // Get User Info
   }
 
   render() {

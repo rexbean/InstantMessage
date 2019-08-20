@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import OptionButton from './OptionButton';
-import JMessage from 'jmessage-react-plugin';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
 import { Navigator_VM } from '../stores/models/NavigatorVM';
 import { connect } from 'react-redux';
@@ -21,21 +20,7 @@ class ChatMenuButton extends Component {
 
   onDelete() {
     const { changeActive, receiver, appKey } = this.props;
-    const params = {
-      username: receiver,
-      appKey,
-      reason: 'No reason, just want to delete you',
-    };
-
-    JMessage.removeFromFriendList(
-      params,
-      () => {
-        Alert.alert('Delete Result', `${username} has been remove successfully`);
-      },
-      error => {
-        Alert.alert('Delete Result', `Delete failed, for ${error}`);
-      },
-    );
+    // Remove Friend
     changeActive(false);
   }
 

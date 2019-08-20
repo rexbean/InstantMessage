@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import React, { Component } from 'react';
 import ChatCell from '../components/ChatCell';
-import JMessage from 'jmessage-react-plugin';
 import { connect } from 'react-redux';
 import { Conversation_VM } from '../stores/models/ConversationScreenVM';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
@@ -51,16 +50,8 @@ class ConversationsScreen extends Component {
 
   componentDidMount() {
     const { addConversations } = this.props;
-    JMessage.getConversations(
-      conversations => {
-        addConversations(conversations);
-        this.setState({ conversations });
-      },
-      error => {
-        Alert.alert(error.code, error.description);
-      },
-    );
 
+    // get conversation here
     this.subscription = DeviceEventEmitter.addListener('accept', this.onAccept);
     this.subscription = DeviceEventEmitter.addListener('decline', this.onDecline);
     this.subscription = DeviceEventEmitter.addListener(

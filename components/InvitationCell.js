@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { TouchableOpacity, View, Text, Image, StyleSheet, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import NewMsgIcon from './NewMsgIcon';
-import JMessage from 'jmessage-react-plugin';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
 
 const styles = StyleSheet.create({
@@ -42,20 +41,7 @@ class InvitationCell extends Component {
 
   componentDidMount() {
     const { user, appKey } = this.props;
-    const params = {
-      username: user.username,
-      appKey,
-    };
-
-    JMessage.getUserInfo(
-      params,
-      userInfo => {
-        this.setState({ userInfo });
-      },
-      error => {
-        Alert.alert(`Get UserInfo Result with ${error.code}`, `Get failed for ${error.description}`);
-      },
-    );
+    // Get user Info
   }
 
   onPress() {

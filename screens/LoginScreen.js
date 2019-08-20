@@ -10,7 +10,6 @@ import {
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
-import JMessage from 'jmessage-react-plugin';
 import { Login_VM } from '../stores/models/LoginScreenVM';
 
 
@@ -94,12 +93,8 @@ class LoginScreen extends Component {
   onLoginPress() {
     const { username, password, navigation } = this.props;
 
-    JMessage.login({ username, password }, () => {
-        navigation.navigate('Main');
-      },
-      error => {
-        Alert.alert('login fail', JSON.stringify(error));
-    })
+    // Login Successfully
+    navigation.navigate('Main');
   }
 
   onRegisterPress() {

@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import JMessage from 'jmessage-react-plugin';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
 import ContactCell from '../components/ContactCell';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
@@ -103,14 +102,7 @@ class ContactsScreen extends Component {
   }
 
   getFriends() {
-    JMessage.getFriends(
-      contacts => {
-        this.setState({ contacts });
-      },
-      error => {
-        Alert.alert(`get friends error with ${error.code}`, `error${error.description}`);
-      },
-    );
+    // Get Friends Here
   }
 
   renderSeparator = () => {

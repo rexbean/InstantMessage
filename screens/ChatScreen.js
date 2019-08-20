@@ -8,7 +8,6 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 import { connect } from 'react-redux';
-import JMessage from 'jmessage-react-plugin';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
 import MessageCell from '../components/MessageCell';
 import { Login_VM } from '../stores/models/LoginScreenVM';
@@ -35,50 +34,8 @@ class ChatScreen extends Component {
     this.subscription = DeviceEventEmitter.addListener('removeFriend', this.onRemoveFriend);
     this.subscription = DeviceEventEmitter.addListener('deleted', this.getFriends);
 
-    const params = {
-      type: 'single',
-      username: receiver,
-      appKey,
-      from: 0,
-      limit: 10,
-      isDescend: true,
-    };
-
-    JMessage.getHistoryMessages(
-      params,
-      msgArr => {
-        // Alert.alert('histroy', msgArr[0]);
-        // console.log('rexbean history', msgArr);
-        msgArr.forEach(value => {
-          addMessage(value);
-        });
-      },
-      error => {
-        Alert.alert(`Get History with error ${error.code}`, `${error.description}`);
-      },
-    );
-    // callback for receiving message
-    this.receiveMessageCallBack = message => {
-      const readParams = {
-        type: 'single',
-        username: message.from.username,
-        appKey: message.from.appKey,
-        id: message.id,
-      };
-
-      JMessage.setMsgHaveRead(readParams, result => {}, error => {})
-
-      if (message.target.type === 'user') {
-        if (message.from.username === receiver) {
-          addMessage(message);
-        } else {
-          // when receive isn't the current one;
-        }
-      }
-    };
-
-    JMessage.addReceiveMessageListener(this.receiveMessageCallBack)
-    JMessage.addReceiptMessageListener((result)=>{})
+    // Get History Message
+    // Add new message Listener
   }
 
   render() {
