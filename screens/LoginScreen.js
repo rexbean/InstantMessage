@@ -96,14 +96,14 @@ class LoginScreen extends Component {
     const { username, password, navigation } = this.props;
 
     // Login Successfully
-    CometChat.login(username, apiKey).then(
-      user => {
-        Alert.alert('Login Result', `Login Successful: ${ user }`);
-      },
-      error => {
-        Alert.alert('Login Result',`Login failed with exception: ${ error }`);
-      },
-    );
+    // CometChat.login(username, apiKey).then(
+    //   user => {
+    //     Alert.alert('Login Result', `Login Successful: ${ user }`);
+    //   },
+    //   error => {
+    //     Alert.alert('Login Result',`Login failed with exception: ${ error }`);
+    //   },
+    // );
     navigation.navigate('Main');
   }
 

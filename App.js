@@ -8,8 +8,15 @@ import store from './stores';
 import { CometChat } from '@cometchat-pro/chat';
 
 class App extends Component {
-  componentDidMount() {
+  async componentDidMount() {
     // init IMClient here
+    // const isNet = await fetch("https://www.baidu.com");
+    // if(isNet.status=200){
+    //     Alert.alert('有网络');
+    //     console.log('rexbean baidu', isNet);
+    // }else{
+    //     Alert.alert('没有网络');
+    // }
     CometChat.init(appID).then(
       () => {
         Alert.alert('result', 'Initialization completed successfully');

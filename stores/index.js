@@ -5,5 +5,3 @@ const store = init({
   models,
 });
 export default store;
-
-console.log("rexbean store", store);
