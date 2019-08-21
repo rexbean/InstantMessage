@@ -4,6 +4,8 @@ export const LoginScreenVM = {
   state: {
     username: null,
     password: null,
+    sb: null,
+    user: null,
   },
   reducers: {
     changeUsername(state, { username }) {
@@ -12,6 +14,12 @@ export const LoginScreenVM = {
     changePassword(state, { password }) {
       return { ...state, password };
     },
+    setSb(state, { sb }) {
+      return { ...state, sb };
+    },
+    setUser(state, { user }) {
+      return { ...state, user };
+    }
   },
   effects: {}
 };

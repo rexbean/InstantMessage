@@ -7,10 +7,13 @@ import {
   StyleSheet,
   Button,
   Image } from 'react-native';
+import SendBird from 'sendbird';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
 import { Login_VM } from '../stores/models/LoginScreenVM';
+import { APP_ID } from './const';
+import { setupMaster } from 'cluster';
 
 
 const styles = StyleSheet.create({
@@ -90,11 +93,22 @@ class LoginScreen extends Component {
     this.passwordInputStyle = this.passwordInputStyle.bind(this);
   }
 
-  onLoginPress() {
-    const { username, password, navigation } = this.props;
+  componentDidMount() {
+    const { setSb } = this.props;
+    const sb = new SendBird({ appId: APP_ID });
+    setSb(sb);
+  }
 
-    // Login Successfully
-    navigation.navigate('Main');
+  onLoginPress() {
+    const { sb, username, password, setUser, navigation } = this.props;
+    // Login
+    sb.connect(username, (user, error) => {
+      if (error) {
+        Alert.alert('Login Error', error);
+      }
+      setUser(user);
+      navigation.navigate('Main');
+    });
   }
 
   onRegisterPress() {
@@ -179,6 +193,7 @@ class LoginScreen extends Component {
 }
 
 const mapStateToProps = state => ({
+  sb: state[Login_VM].sb,
   username: state[Login_VM].username,
   password: state[Login_VM].password,
 });
@@ -186,6 +201,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   changeUsername: v => dispatch[Login_VM].changeUsername({ username: v }),
   changePassword: v => dispatch[Login_VM].changePassword({ password: v }),
+  setSb: v => dispatch[Login_VM].setSb({ sb: v }),
+  setUser: v => dispatch[Login_VM].setUser({ user: v }),
 });
 
 export default connect(

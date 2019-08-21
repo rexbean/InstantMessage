@@ -11,6 +11,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
 import { Register_VM } from '../stores/models/RegisterScreenVM';
+import { Login_VM } from '../stores/models/LoginScreenVM';
 
 
 const styles = StyleSheet.create({
@@ -90,11 +91,17 @@ class RegisterScreen extends Component {
   }
 
   onRegisterPress() {
-    const { navigation, username, password } = this.props;
+    const { sb, setUser, navigation, username, password } = this.props;
 
     // Create User here IMClient
     // using redux function
-
+    sb.connect(username, (user, error) => {
+      if (error) {
+        Alert.alert('Register Error', error);
+      }
+      setUser(user);
+      navigation.navigate('Main');
+    });
   }
 
   passwordInputStyle(color) {
@@ -161,11 +168,13 @@ class RegisterScreen extends Component {
 const mapStateToProps = state => ({
   username: state[Register_VM].username,
   password: state[Register_VM].password,
+  sb: state[Login_VM].sb,
 });
 
 const mapDispatchToProps = dispatch => ({
   changeUsername: v => dispatch[Register_VM].changeUsername({ username: v }),
   changePassword: v => dispatch[Register_VM].changePassword({ password: v }),
+  setUser: v => dispatch[Login_VM].setUser({ user: v }),
 });
 
 export default connect(

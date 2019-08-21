@@ -1,1 +1,1 @@
-export const appKey = 'b6e4c6e373e10a6afd7e2ac6';
+export const APP_ID = '2406350B-DF5B-4592-AC96-B93B398B6F48';

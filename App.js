@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { Provider } from 'react-redux';
 import AppNavigator from './navigation/AppNavigator';
 import NavigationService from './services/NavigationService';
-import { appKey } from './const';
 import store from './stores';
 
 import friendEventListener from './listeners/friendEventListener';
