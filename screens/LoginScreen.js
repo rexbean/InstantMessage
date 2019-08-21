@@ -11,6 +11,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
 import { Login_VM } from '../stores/models/LoginScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 
 const styles = StyleSheet.create({
@@ -94,6 +95,7 @@ class LoginScreen extends Component {
     const { username, password, navigation } = this.props;
 
     // Login Successfully
+    LeanCloud.login(username, password);
     navigation.navigate('Main');
   }
 

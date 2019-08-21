@@ -25,7 +25,7 @@ const GroupListScreen = props => {
         style={{ flex: 1 }}
         data={groups}
         renderItem={({ item }) => (
-          <ContactCell option="group" user={item.username} navigation={navigation} />
+          <ContactCell option="group" user={item.user} navigation={navigation} />
         )}
         keyExtractor={item => item.key}
         ItemSeparatorComponent={this.renderSeparator}
