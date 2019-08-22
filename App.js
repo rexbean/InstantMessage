@@ -12,7 +12,7 @@ import friendEventListener from './listeners/friendEventListener';
 class App extends Component {
   componentDidMount() {
     const params = {
-      appKey,
+      appkey: appKey,
       isOpenMessageRoaming: true,
       isProduction: false,
       channel: '',
@@ -25,7 +25,7 @@ class App extends Component {
     return (
       <Provider store={store}>
         <View style={{ flex: 1 }}>
-          <AppNavigator ref={navigatorRef => NavigationService.init(navigatorRef)}/>
+          <AppNavigator ref={navigatorRef => NavigationService.init(navigatorRef)} />
         </View>
       </Provider>
     );
