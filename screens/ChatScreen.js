@@ -14,6 +14,7 @@ import { Login_VM } from '../stores/models/LoginScreenVM';
 import ChatInput from '../components/ChatInput';
 import BottomMenu from '../components/BottomMenu';
 import ChatMenuButton from '../components/ChatMenuButton';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -27,15 +28,35 @@ class ChatScreen extends Component {
 
   // };
 
-  // set listener for the JMessage
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      curConversation: props.conversation,
+    };
+  }
+
   componentDidMount() {
     const { addMessage, receiver, conversation, appKey } = this.props;
 
+
     this.subscription = DeviceEventEmitter.addListener('removeFriend', this.onRemoveFriend);
     this.subscription = DeviceEventEmitter.addListener('deleted', this.getFriends);
+    // Add new message Listener
+    this.subscription = DeviceEventEmitter.addListener('message', this.onMessage);
 
     // Get History Message
-    // Add new message Listener
+    LeanCloud.getHistory(conversation);
+  }
+
+  onMessage({ message, conversation }) {
+    const { curConversation } = this.state;
+    const { addMessage } = this.props;
+    // when receiving message
+    if (curConversation.id === conversation.id) {
+      // add message to the messageSet
+      addMessage(message);
+    }
   }
 
   render() {

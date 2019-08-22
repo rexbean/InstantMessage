@@ -3,17 +3,9 @@ import { View } from 'react-native';
 import { Provider } from 'react-redux';
 import AppNavigator from './navigation/AppNavigator';
 import NavigationService from './services/NavigationService';
-import { appKey, appID } from './const';
 import store from './stores';
 
-import friendEventListener from './listeners/friendEventListener';
-
 class App extends Component {
-  componentDidMount() {
-    // init IMClient here
-    LeanCloudAPI.init();
-  }
-
   render() {
     return (
       <Provider store={store}>

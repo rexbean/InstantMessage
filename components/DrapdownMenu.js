@@ -77,12 +77,19 @@ class DrapdownMenu extends Component {
     const { content } = this.props;
 
     const menu = [];
+
     Object.keys(content).forEach(key => {
+      let imageSource = '';
+      if (content[key].text === 'Add Contacts') {
+        imageSource = require('../assets/images/friend-icon.png');
+      } else if (content[key].text === 'New Chat') {
+        imageSource = require('../assets/images/group-icon.png');
+      }
       menu.push(
         <TouchableOpacity onPress={content[key].onPress} style={styles.menuElement}>
-          <Image source={{ uri: content[key].image }} style={styles.icon} />
+          <Image source={imageSource} style={styles.icon} />
           <Text style={styles.text}>{content[key].text}</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>,
       );
     });
 

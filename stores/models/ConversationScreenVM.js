@@ -6,7 +6,8 @@ export const ConversationScreenVM = {
   },
   reducers: {
     addConversations(state, { conversations }) {
-      return { ...state, ...conversations };
+      const newConversations = [...conversations, ...state.conversations];
+      return { ...state, conversations: newConversations };
     },
   },
   effects: {}

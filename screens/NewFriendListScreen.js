@@ -32,7 +32,7 @@ class NewFriendListScreen extends Component {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <FlatList
           style={{ flex: 1 }}
-          data={Object.values(invitations)}
+          data={invitations}
           renderItem={({ item }) => <InvitationCell user={item} navigation={navigation} />}
           ItemSeparatorComponent={this.renderSeparator()}
         />

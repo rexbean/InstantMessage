@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
 import ContactCell from '../components/ContactCell';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -50,6 +51,7 @@ class ContactsScreen extends Component {
 
     this.onAccept = this.onAccept.bind(this);
     this.onDecline = this.onDecline.bind(this);
+    this.onDeclined = this.onDeclined.bind(this);
     this.onRemoveFriend = this.onRemoveFriend.bind(this);
     this.getFriends = this.getFriends.bind(this);
     this.onReceiveInvitation = this.onReceiveInvitation.bind(this);
@@ -64,6 +66,7 @@ class ContactsScreen extends Component {
     this.subscription = DeviceEventEmitter.addListener('accept', this.onAccept);
     this.subscription = DeviceEventEmitter.addListener('accepted', this.getFriends);
     this.subscription = DeviceEventEmitter.addListener('decline', this.onDecline);
+    this.subscription = DeviceEventEmitter.addListener('onDeclined', this.onDeclined);
     this.subscription = DeviceEventEmitter.addListener('removeFriend', this.onRemoveFriend);
     this.subscription = DeviceEventEmitter.addListener('deleted', this.getFriends);
     this.subscription = DeviceEventEmitter.addListener(
@@ -82,9 +85,14 @@ class ContactsScreen extends Component {
     this.getFriends();
   }
 
-  onReceiveInvitation(user) {
+  onDeclined(user) {
+    // Local Notificication;
+  }
+
+  onReceiveInvitation({ payload, conversation }) {
     const { receiveInvitation } = this.props;
-    receiveInvitation(user);
+    receiveInvitation(payload.invitedBy);
+    Alert.alert(`receive new invitation from ${payload.invitedBy}`);
     this.setState(prevState => ({
       numberOfInvitations: prevState.numberOfInvitations + 1,
     }));
@@ -94,15 +102,17 @@ class ContactsScreen extends Component {
     const newContacts = [];
     const { contacts } = this.state;
     contacts.forEach(value => {
-      if (value.username !== user.username) {
+      if (value !== user) {
         newContacts.push(value);
       }
     });
     this.setState({ contacts: newContacts });
   }
 
-  getFriends() {
+  async getFriends() {
     // Get Friends Here
+    const contacts = await LeanCloud.getFriends();
+    this.setState({ contacts });
   }
 
   renderSeparator = () => {
@@ -152,15 +162,11 @@ class ContactsScreen extends Component {
     const dataset = [];
     dataset.push({
       option: 'newFriend',
-      user: {
-        username: 'New Friends',
-      },
+      user: 'New Friends',
     });
     dataset.push({
       option: 'groupChats',
-      user: {
-        username: 'Group Chats',
-      },
+      user: 'Group Chats',
     });
 
     contacts.forEach(value => {

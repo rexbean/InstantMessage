@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, Image, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   name: {
@@ -34,7 +35,7 @@ class ChatCell extends Component {
 
   onPress() {
     const { setReceiver, navigation, name, conversation } = this.props;
-    setReceiver(conversation.target.username);
+    setReceiver(conversation.name);
     navigation.navigate('Chat', {
       conversation,
     });
@@ -42,16 +43,8 @@ class ChatCell extends Component {
 
   render() {
     const { conversation } = this.props;
-    const latestMsgType = conversation.latestMessage.type;
-    const targetType = conversation.target.type;
     const latestMsg =
-      latestMsgType === 'text'
-        ? conversation.latestMessage.text
-        : `[${conversation.latestMessage.type}]`;
-    const name =
-      targetType === 'user'
-        ? conversation.target.username
-        : '';
+      conversation.lastMessage === undefined ? '' : conversation.lastMessage.toFullJSON();
 
     return (
       <TouchableOpacity onPress={() => this.onPress()}>
@@ -60,7 +53,7 @@ class ChatCell extends Component {
             <Image source={require('../assets/images/myinfo-icon.png')} style={[styles.icon]} />
           </View>
           <View style={styles.info}>
-            <Text style={styles.name}>name: {name}</Text>
+            <Text style={styles.name}>name: {conversation.name}</Text>
             <Text>last Message: {latestMsg}</Text>
           </View>
         </View>

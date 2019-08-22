@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -39,40 +40,57 @@ class UsreInfoScreen extends Component {
     // const { user } = this.props.navigation.state.params;
     const { user } = this.state;
     // onAccept
+    DeviceEventEmitter.emit('accept', user);
+    navigation.navigate('Conversations');
   }
 
   onDecline() {
-    const { navigation, appKey } = this.props;
+    const { navigation, conversation } = this.props;
     // const { user } = this.props.navigation.state.params;
     const { user } = this.state;
     // on Decline
+    LeanCloud.decline(conversation);
   }
 
-  onAdd() {
+  async onAdd() {
     const { appKey, navigation } = this.props;
     const { user } = this.state;
     // on Add
+    try {
+      await LeanCloud.createConversation(user);
+      Alert.alert('Send Invitation Successfully');
+    } catch (e) {
+      Alert.alert('send request failed');
+    }
+
   }
 
   onChat() {
-    //create Conversation Here
+    // create Conversation Here
     const { navigation, appKey } = this.props;
     const { user } = this.state;
     // on Chat
+    const conversation = LeanCloud.createConversation(user);
+    navigation.navigate('Chat', {
+      conversation,
+    });
   }
 
-  onDelete() {
-    const { appKey } = this.props;
-    // const { user } = this.props.navigation.state.params;
+  async onDelete() {
     const { user } = this.state;
     // on Delete
+    const result = await LeanCloud.delete(user);
+    if (result === true) {
+      Alert.alert('Deleted Successfully!');
+      DeviceEventEmitter.emit('removeFriend', user);
+    }
   }
 
   render() {
-    const { invitation } = this.props.navigation.state.params;
+    const { invitation, isFriend } = this.props.navigation.state.params;
     const { user } = this.state;
     let button;
-    if (!user.isFriend) {
+    if (!isFriend) {
       if (invitation) {
         button = (
           <View style={styles.container}>
@@ -94,7 +112,7 @@ class UsreInfoScreen extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          <Text>{`This is the UserInfo Screen for User ${user.username}`}</Text>
+          <Text>{`This is the UserInfo Screen for User ${user}`}</Text>
           {button}
         </View>
       </TouchableWithoutFeedback>

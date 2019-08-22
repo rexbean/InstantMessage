@@ -11,6 +11,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'react-native-elements';
 import { Register_VM } from '../stores/models/RegisterScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 
 const styles = StyleSheet.create({
@@ -92,9 +93,8 @@ class RegisterScreen extends Component {
   onRegisterPress() {
     const { navigation, username, password } = this.props;
 
-    // Create User here IMClient
-    // using redux function
-
+    // Create User IMClient in login
+    navigation.goBack();
   }
 
   passwordInputStyle(color) {
@@ -138,7 +138,7 @@ class RegisterScreen extends Component {
           />
 
           <View>
-            <Button onPress={() => this.onRegisterPress()} />
+            <Button title = "Sign Up" onPress={() => this.onRegisterPress()} />
             {/* <LinearGradientButton
               onPress={() => this.onRegisterPress()}
               start={{ x: 0, y: 0 }}

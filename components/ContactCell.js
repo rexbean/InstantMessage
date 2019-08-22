@@ -46,6 +46,7 @@ class ContactCell extends Component {
     } else if (option === 'contact' || option === 'group') {
       navigation.navigate('UserInfo', {
         user,
+        isFriend: true,
         invitation: false,
       });
     }
@@ -65,7 +66,7 @@ class ContactCell extends Component {
       <TouchableOpacity onPress={this.onPress}>
         <View style={styles.container}>
           {icon}
-          <Text style={styles.name}>{user.username}</Text>
+          <Text style={styles.name}>{user}</Text>
           {numberOfInvitations !== 0 && option === 'newFriend' ? <NewMsgIcon style={styles.newMsgIcon} count={numberOfInvitations} />: null}
         </View>
 

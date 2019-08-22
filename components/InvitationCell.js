@@ -68,7 +68,7 @@ class InvitationCell extends Component {
         <View style={styles.container}>
           {icon}
           <View style={styles.info}>
-            <Text style={styles.name}>{user.username}</Text>
+            <Text style={styles.name}>{user}</Text>
             <Text>Reason: {user.reason}</Text>
           </View>
         </View>

@@ -35,12 +35,10 @@ class AddButton extends Component {
     const content = [
       {
         onPress: this.onNewContact,
-        image: '../assets/images/friend-icon.png',
         text: 'Add Contacts',
       },
       {
         onPress: this.onNewChat,
-        image: '../assets/images/group-icon.png',
         text: 'New Chat',
       },
     ];

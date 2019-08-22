@@ -13,6 +13,7 @@ import ChatCell from '../components/ChatCell';
 import { connect } from 'react-redux';
 import { Conversation_VM } from '../stores/models/ConversationScreenVM';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   icon: {
@@ -48,22 +49,27 @@ class ConversationsScreen extends Component {
     this.onNewConversation = this.onNewConversation.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { addConversations } = this.props;
-
     // get conversation here
+    const conversations = await LeanCloud.getConversations();
+    this.setState({ conversations });
+
     this.subscription = DeviceEventEmitter.addListener('accept', this.onAccept);
     this.subscription = DeviceEventEmitter.addListener('decline', this.onDecline);
     this.subscription = DeviceEventEmitter.addListener(
       'receiveInvitation',
       this.onReceiveInvitation,
     );
-    this.subscription = DeviceEventEmitter.addListener('newConversation', this.onNewConversation);
+    this.subscription = DeviceEventEmitter.addListener('chat', this.onNewConversation);
 
     // TODO this.subscription = DeviceEventEmitter.addListener('onAccepted', this.onAccepted);
   }
 
-  onAccept(user) {
+  async onAccept(user) {
+    const { addConversations } = this.props;
+    const conversation = await LeanCloud.createConversation(user);
+    addConversations(conversation);
     this.changeInvitation(user);
   }
 

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { NewContact_VM } from '../stores/models/NewContactScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -50,6 +51,8 @@ class NewContactScreen extends Component {
 
     this.state = {
       user: undefined,
+      invitation: undefined,
+      isFriend: false,
     };
 
     this.onSearch = this.onSearch.bind(this);
@@ -59,16 +62,24 @@ class NewContactScreen extends Component {
   onPress() {
     // navigation to the userInfo screen
     const { navigation } = this.props;
-    const { user } = this.state;
+    const { user, invitation, isFriend } = this.state;
     navigation.navigate('UserInfo', {
       user,
-      invitation: false,
+      isFriend,
+      invitation,
     });
   }
 
-  onSearch() {
-    const { username, appKey } = this.props;
+  async onSearch() {
+    const { username } = this.props;
     // Get User Info
+    const conversation = await LeanCloud.findContact(username);
+    console.log('rexbean conversation', conversation);
+    if (conversation.length === 0) {
+      this.setState({ isFriend: false, invitation: false, user: username });
+    } else {
+      this.setState({ isFriend: true, invitation: false, user: username });
+    }
   }
 
   render() {
@@ -97,7 +108,7 @@ class NewContactScreen extends Component {
               ) : ( */}
                 <Image source={require('../assets/images/myinfo-icon.png')} />
               {/* )} */}
-              <Text>{user.username}</Text>
+              <Text>{user}</Text>
             </View>
           </TouchableOpacity>
         )}

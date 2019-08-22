@@ -91,12 +91,16 @@ class LoginScreen extends Component {
     this.passwordInputStyle = this.passwordInputStyle.bind(this);
   }
 
-  onLoginPress() {
+  async onLoginPress() {
     const { username, password, navigation } = this.props;
 
     // Login Successfully
-    LeanCloud.login(username, password);
-    navigation.navigate('Main');
+    //try {
+      await LeanCloud.login(username, password);
+      navigation.navigate('Main');
+    // } catch (e) {
+    //   Alert.alert(e);
+    // }
   }
 
   onRegisterPress() {
