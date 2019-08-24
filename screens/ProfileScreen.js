@@ -10,6 +10,7 @@ import {
 import React, { Component } from 'react';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
 import { connect } from 'react-redux';
+import Avatar from '../components/Avatar';
 
 const styles = StyleSheet.create({
   icon: {
@@ -28,7 +29,7 @@ class ProfileScreen extends Component {
     return {
       title: 'Profile',
       tabBarIcon: ({ tintColor }) => {
-        return <Image source={icon} style={[styles.icon, { tintColor }]}/>
+        return <Avatar type="profile" style={[styles.icon, { tintColor }]} />
       },
     };
   };

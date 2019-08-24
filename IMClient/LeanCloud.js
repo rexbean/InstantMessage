@@ -2,6 +2,8 @@ import { DeviceEventEmitter, Alert } from 'react-native';
 import { Realtime, Event } from 'leancloud-realtime';
 // import { TypedMessagesPlugin } from 'leancloud-realtime-plugin-typed-messages';
 import { appId, appKey } from '../const';
+import { TextMessage,  MessageQueryDirection } from 'leancloud-realtime';
+
 
 class LeanCloud {
   constructor() {
@@ -40,11 +42,19 @@ class LeanCloud {
 
   async login(username) {
     this.imClient = await this.realtime.createIMClient(username);
-    Alert.alert('login successfully');
     this.username = username;
     this.imClient.on(Event.MESSAGE, (message, conversation) => {
       // LocalNotification here with message and can be clicked to the specific conversation
-      DeviceEventEmitter.emit('message', { message, conversation });
+      try{
+        DeviceEventEmitter.emit('increaseCount', 1);
+        DeviceEventEmitter.emit('message', { message, conversation });
+        console.log('new message,', message._lctext);
+
+      } catch (e){
+        console.log('error', e);
+      }
+
+
     });
 
     this.imClient.on(Event.INVITED, (payload, conversation) => {
@@ -93,7 +103,6 @@ class LeanCloud {
           }
         });
       });
-      console.log('rexbea friends', friends);
       return friends;
     } catch (e) {
       Alert.alert('Get friends error', e);
@@ -107,7 +116,6 @@ class LeanCloud {
       .containsMembers([this.username])
       .find();
     conversations.forEach(async conversation => {
-      console.log('rexbean conversation member', conversation.members);
       if (conversation.members.length === 1) {
         await conversation.quit();
       }
@@ -123,7 +131,6 @@ class LeanCloud {
         .withLastMessagesRefreshed(true)
         .containsMembers([this.username])
         .find();
-      console.log('rexbean conversations', conversations);
       return conversations;
     } catch (e) {
       Alert.alert(e);
@@ -153,18 +160,26 @@ class LeanCloud {
   }
 
   async createConversation(user) {
-    // try {
-      console.log('rexbean conversation', user, this.username)
+    try {
       const conversation = await this.imClient.createConversation({
         members: [user, this.username],
         name: user,
         unique: true,
       });
       return conversation;
-    // } catch (e) {
-    //   Alert.alert('Send Request Error', e);
-    //   return null;
-    // }
+    } catch (e) {
+      Alert.alert('Send Request Error', e);
+      return null;
+    }
+  }
+
+  async read(conversation) {
+    try {
+      const result = await conversation.read();
+      return result;
+    } catch (e) {
+      throw e;
+    }
   }
 
   async delete(user) {
@@ -188,10 +203,33 @@ class LeanCloud {
   }
 
   async getHistory(conversation) {
-    const messages = await conversation.queryMessage({
-      limit: 10,
-    });
-    return messages;
+    try {
+      const messages = await conversation.queryMessages({
+        limit: 10,
+      });
+      return messages;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async sendTextMessage(conversation, message) {
+    try {
+      const msg = await conversation.send(new TextMessage(message));
+      console.log(`${msg} has been sent`);
+      return msg;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async msgToString(message) {
+    try {
+      const msg = await this.imClient.parseMessage(message);
+      return msg._lctext;
+    } catch (e) {
+      throw e;
+    }
   }
 }
 export default new LeanCloud();

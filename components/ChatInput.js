@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
+import { View, Button, Image, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
-import sendTextMessage from '../util/sendTextMessage';
-
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -38,28 +37,32 @@ class ChatInput extends Component {
     this.onSend = this.onSend.bind(this);
   }
 
+  componentDidMount() {
+    const { setShow } = this.props;
+    setShow(false);
+  }
+
   // send text message
-  onSend() {
-    const { appKey, message, addMessage, changeMessage, receiver } = this.props;
-    sendTextMessage(
-      appKey,
-      receiver,
-      message,
-      msg => {
-        addMessage(msg);
-        changeMessage('');
-      },
-      msg => {
-        Alert.alert('message sent error', msg);
-      },
-    );
+  async onSend() {
+    const { conversation, message, addMessage, changeMessage, _flatList } = this.props;
+    try {
+      const msg = await LeanCloud.sendTextMessage(conversation, message);
+      addMessage(msg);
+      changeMessage('');
+      _flatList.scrollToEnd();
+    } catch (e) {
+      Alert.alert(e);
+    }
   }
 
   onShowMenu(type) {
-    const { setShow, setContent, show } = this.props;
+    const { setShow, setContent, show, _flatList } = this.props;
     const newShow = !show;
     setShow(newShow);
     setContent(type);
+    setTimeout(() => {
+      _flatList.scrollToEnd();
+    }, 30);
   }
 
   render() {
@@ -98,8 +101,6 @@ class ChatInput extends Component {
 
 const mapStateToProps = state => ({
   message: state[Chat_VM].message,
-  appKey: state[Chat_VM].appKey,
-  receiver: state[Chat_VM].receiver,
   show: state[Chat_VM].show,
 });
 

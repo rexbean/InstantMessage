@@ -74,7 +74,6 @@ class NewContactScreen extends Component {
     const { username } = this.props;
     // Get User Info
     const conversation = await LeanCloud.findContact(username);
-    console.log('rexbean conversation', conversation);
     if (conversation.length === 0) {
       this.setState({ isFriend: false, invitation: false, user: username });
     } else {

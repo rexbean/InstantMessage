@@ -2,7 +2,6 @@ import { createBottomTabNavigator, createStackNavigator } from 'react-navigation
 import React from 'react';
 import { Alert } from 'react-native';
 import AddButton from '../components/AddButton';
-import ChatMenuButton from '../components/ChatMenuButton';
 import ConversationsScreen from '../screens/ConversationsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ChatScreen from '../screens/ChatScreen';
@@ -13,8 +12,10 @@ import ContactsScreen from '../screens/ContactsScreen';
 import NewContactScreen from '../screens/NewContactScreen';
 import NewChatScreen from '../screens/NewChatScreen';
 import UserInfoScreen from '../screens/UserInfoScreen';
+import BackButton from '../components/BackButton';
 
-export const bottomNavigator = createBottomTabNavigator({
+export const bottomNavigator = createBottomTabNavigator(
+  {
     Conversations: {
       screen: ConversationsScreen,
     },
@@ -48,6 +49,7 @@ const MainTabNavigator = createStackNavigator({
 });
 
 bottomNavigator.navigationOptions = ({ navigation }) => {
-  return { headerRight: <AddButton navigation={navigation} /> };
+  return {
+    headerRight: <AddButton navigation={navigation} />};
 };
 export default MainTabNavigator;

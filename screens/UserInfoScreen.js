@@ -30,48 +30,24 @@ class UsreInfoScreen extends Component {
 
     this.onAdd = this.onAdd.bind(this);
     this.onChat = this.onChat.bind(this);
-    this.onAccept = this.onAccept.bind(this);
-    this.onDecline = this.onDecline.bind(this);
     this.onDelete = this.onDelete.bind(this);
   }
 
-  onAccept() {
-    const { navigation, appKey } = this.props;
-    // const { user } = this.props.navigation.state.params;
-    const { user } = this.state;
-    // onAccept
-    DeviceEventEmitter.emit('accept', user);
-    navigation.navigate('Conversations');
-  }
-
-  onDecline() {
-    const { navigation, conversation } = this.props;
-    // const { user } = this.props.navigation.state.params;
-    const { user } = this.state;
-    // on Decline
-    LeanCloud.decline(conversation);
-  }
-
   async onAdd() {
-    const { appKey, navigation } = this.props;
+    const { navigation } = this.props;
     const { user } = this.state;
     // on Add
-    try {
-      await LeanCloud.createConversation(user);
-      Alert.alert('Send Invitation Successfully');
-    } catch (e) {
-      Alert.alert('send request failed');
-    }
-
+    // follow a friend
   }
 
-  onChat() {
+  async onChat() {
     // create Conversation Here
-    const { navigation, appKey } = this.props;
+    const { navigation } = this.props;
     const { user } = this.state;
     // on Chat
-    const conversation = LeanCloud.createConversation(user);
+    const conversation = await LeanCloud.createConversation(user.username);
     navigation.navigate('Chat', {
+      user,
       conversation,
     });
   }
@@ -79,28 +55,14 @@ class UsreInfoScreen extends Component {
   async onDelete() {
     const { user } = this.state;
     // on Delete
-    const result = await LeanCloud.delete(user);
-    if (result === true) {
-      Alert.alert('Deleted Successfully!');
-      DeviceEventEmitter.emit('removeFriend', user);
-    }
+    // unfollow
   }
 
   render() {
-    const { invitation, isFriend } = this.props.navigation.state.params;
     const { user } = this.state;
     let button;
-    if (!isFriend) {
-      if (invitation) {
-        button = (
-          <View style={styles.container}>
-            <Button title="accept" onPress={this.onAccept} />
-            <Button title="decline" onPress={this.onDecline} />
-          </View>
-        );
-      } else {
-        button = <Button title="add" onPress={this.onAdd} />;
-      }
+    if (!user.isFriend) {
+      button = <Button title="add" onPress={this.onAdd} />;
     } else {
       button = (
         <View style={styles.container}>
@@ -112,7 +74,7 @@ class UsreInfoScreen extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          <Text>{`This is the UserInfo Screen for User ${user}`}</Text>
+          <Text>{`This is the UserInfo Screen for User ${user.username}`}</Text>
           {button}
         </View>
       </TouchableWithoutFeedback>
@@ -120,15 +82,12 @@ class UsreInfoScreen extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  appKey: state[Chat_VM].appKey,
-});
 
 const mapDispatchToProps = dispatch => ({
   changeInvitation: v => dispatch[Contact_VM].changeInvitation({ invitation: v }),
 });
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps,
 )(UsreInfoScreen);

@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { SafeAreaView } from 'react-navigation';
+
 import {
   TouchableWithoutFeedback,
   View,
@@ -13,7 +15,6 @@ import MessageCell from '../components/MessageCell';
 import { Login_VM } from '../stores/models/LoginScreenVM';
 import ChatInput from '../components/ChatInput';
 import BottomMenu from '../components/BottomMenu';
-import ChatMenuButton from '../components/ChatMenuButton';
 import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
@@ -24,21 +25,18 @@ const styles = StyleSheet.create({
 });
 
 class ChatScreen extends Component {
-  // static navigationOptions = ({ navigation }) => {
-
-  // };
-
   constructor(props) {
     super(props);
-
     this.state = {
-      curConversation: props.conversation,
+      curConversation: props.navigation.state.params.conversation,
     };
+
+    this.onMessage = this.onMessage.bind(this);
   }
 
-  componentDidMount() {
-    const { addMessage, receiver, conversation, appKey } = this.props;
-
+  async componentDidMount() {
+    const { addMessage, clearMessage } = this.props;
+    const { curConversation } = this.state;
 
     this.subscription = DeviceEventEmitter.addListener('removeFriend', this.onRemoveFriend);
     this.subscription = DeviceEventEmitter.addListener('deleted', this.getFriends);
@@ -46,7 +44,15 @@ class ChatScreen extends Component {
     this.subscription = DeviceEventEmitter.addListener('message', this.onMessage);
 
     // Get History Message
-    LeanCloud.getHistory(conversation);
+    try {
+      clearMessage();
+      let messages = await LeanCloud.getHistory(curConversation);
+      messages.forEach(message => {
+        addMessage(message);
+      });
+    } catch (e) {
+      Alert.alert(`Get History error ${e}`);
+    }
   }
 
   onMessage({ message, conversation }) {
@@ -56,31 +62,39 @@ class ChatScreen extends Component {
     if (curConversation.id === conversation.id) {
       // add message to the messageSet
       addMessage(message);
+      if (this._flatList != null) {
+        this._flatList.scrollToEnd();
+      }
     }
   }
 
   render() {
     const { selfName, messageSet, navigation, show } = this.props;
-
+    const { curConversation } = this.state;
     return (
-      <TouchableWithoutFeedback >
+      <TouchableWithoutFeedback>
         <View style={styles.container}>
           {/* Message List */}
-          <View style={{ flex: show === true ? 3 : 5 }}>
+          <View>
             <FlatList
+              style={{ height: show ? '73%' : '93%' }}
+              ref={flatList => this._flatList=flatList}
               data={messageSet}
-              inverted={-1}
               renderItem={({ item }) => <MessageCell selfName={selfName} message={item} />}
               keyExtractor={item => item.id}
-              ItemSeparatorComponent={this.renderSeparator}
+              contentContainerStyle={{ paddingBottom: 55 }}
             />
           </View>
           {/* Input Component */}
-          <View style={{ height: 50, marginBottom: show === true ? 0 : 20 }}>
-            <ChatInput style={styles.inputView} onSend={this.onSendPress} />
+          <View style={{ height: 50, marginBottom: show ? 0 : 20 }}>
+            <ChatInput
+              style={styles.inputView}
+              conversation={curConversation}
+              _flatList={this._flatList}
+            />
           </View>
           {/* Bottom Menu */}
-          <View style={{ flex: show === true ? 1 : 0 }}>
+          <View style={{ height: show ? '20%' : '0%' }}>
             <BottomMenu navigation={navigation} />
           </View>
         </View>
@@ -93,11 +107,10 @@ const mapStateToProps = state => ({
   messageSet: state[Chat_VM].messageSet,
   selfName: state[Login_VM].username,
   show: state[Chat_VM].show,
-  receiver: state[Chat_VM].receiver,
-  appKey: state[Chat_VM].appKey,
 });
 
 const mapDispatchToProps = dispatch => ({
+  clearMessage: () => dispatch[Chat_VM].clearMessage(),
   addMessage: v => dispatch[Chat_VM].addMessage({ message: v }),
 });
 

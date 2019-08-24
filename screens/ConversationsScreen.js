@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import { Conversation_VM } from '../stores/models/ConversationScreenVM';
 import { Contact_VM } from '../stores/models/ContactScreenVM';
 import LeanCloud from '../IMClient/LeanCloud';
+import Avatar from '../components/Avatar';
 
 const styles = StyleSheet.create({
   icon: {
@@ -30,9 +31,7 @@ class ConversationsScreen extends Component {
     return {
       title: 'Conversations',
       tabBarIcon: ({ tintColor }) => (
-        <Image
-          source={require('../assets/images/chat-icon.png')}
-          style={[styles.icon, { tintColor }]}/>
+        <Avatar type="conversation" style={[styles.icon, { tintColor }]} />
       ),
     };
   };
@@ -42,44 +41,52 @@ class ConversationsScreen extends Component {
 
     this.state = {
       conversations: [],
-    }
-    this.onAccept = this.onAccept.bind(this);
-    this.onDecline = this.onDecline.bind(this);
-    this.onReceiveInvitation = this.onReceiveInvitation.bind(this);
+    };
+
     this.onNewConversation = this.onNewConversation.bind(this);
+    this.refreshConversations = this.refreshConversations.bind(this);
+    this.onMessage = this.onMessage.bind(this);
   }
 
   async componentDidMount() {
-    const { addConversations } = this.props;
     // get conversation here
+    let totalUnread = 0;
     const conversations = await LeanCloud.getConversations();
+    conversations.forEach(conversation => {
+      totalUnread += conversation.unreadMessagesCount;
+    });
+
     this.setState({ conversations });
-
-    this.subscription = DeviceEventEmitter.addListener('accept', this.onAccept);
-    this.subscription = DeviceEventEmitter.addListener('decline', this.onDecline);
-    this.subscription = DeviceEventEmitter.addListener(
-      'receiveInvitation',
-      this.onReceiveInvitation,
-    );
+    // get total unread here
+    DeviceEventEmitter.emit('increaseCount', totalUnread);
     this.subscription = DeviceEventEmitter.addListener('chat', this.onNewConversation);
-
-    // TODO this.subscription = DeviceEventEmitter.addListener('onAccepted', this.onAccepted);
+    this.subscription = DeviceEventEmitter.addListener('message', this.onMessage);
   }
 
-  async onAccept(user) {
-    const { addConversations } = this.props;
-    const conversation = await LeanCloud.createConversation(user);
-    addConversations(conversation);
-    this.changeInvitation(user);
-  }
+  shouldComponentUpdate(nextProps, nextState) {
+    if(nextState.conversations.length !== this.state.conversations.length){
+      return true;
+    }
 
-  onDecline(user) {
-    this.changeInvitation(user);
-  }
-
-  onReceiveInvitation(user) {
-    const { receiveInvitation } = this.props;
-    receiveInvitation(user);
+    for (let i = 0; i < nextState.conversations.length; i += 1) {
+      if (nextState.conversations[i].lastMessage === undefined
+        && this.state.conversations[i].lastMessage === undefined) {
+        continue;
+      } else if (
+        nextState.conversations[i].lastMessage !== undefined &&
+        this.state.conversations[i].lastMessage !== undefined
+      ) {
+        if (
+          nextState.conversations[i].lastMessage._lctext !=
+          this.state.conversations[i].lastMessage._lctext
+        ) {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 
   onNewConversation(conversation) {
@@ -87,9 +94,27 @@ class ConversationsScreen extends Component {
     addConversations(conversation);
   }
 
-  changeInvitation(user) {
-    const { changeInvitation } = this.props;
-    changeInvitation(user);
+  onMessage({ message, conversation }) {
+    this.refreshConversations(conversation);
+  }
+
+  // output(thisState){
+  //   console.log(thisState.lastMessage === undefined? 'undefined' :thisState.lastMessage._lctext);
+  // }
+
+  refreshConversations(convers) {
+    const { increaseNumOfUnread } = this.props
+    const { conversations } = this.state;
+    const newConversations = [];
+    conversations.forEach(conversation => {
+      if (convers.id !== conversation.id) {
+        newConversations.push(conversation);
+      }
+    });
+
+    newConversations.unshift(convers);
+    increaseNumOfUnread(1);
+    this.setState({ conversations: newConversations });
   }
 
   renderSeparator = () => {
@@ -101,7 +126,7 @@ class ConversationsScreen extends Component {
           backgroundColor: '#CED0CE',
           marginLeft: 20,
           marginTop: 5,
-          marginBottom: 5
+          marginBottom: 5,
         }}
       />
     );
@@ -116,8 +141,11 @@ class ConversationsScreen extends Component {
         <FlatList
           style={{ flex: 1 }}
           data={conversations}
-          renderItem={({ item }) => <ChatCell navigation={navigation} conversation={item} />}
-          keyExtractor={item => item.key}
+          renderItem={({ item }) => {
+            return <ChatCell navigation={navigation} conversation={item} />
+          }}
+          keyExtractor={item => item.id}
+          extraData={this.state.conversations}
           ItemSeparatorComponent={this.renderSeparator}
         />
       </TouchableWithoutFeedback>
@@ -127,10 +155,11 @@ class ConversationsScreen extends Component {
 
 const mapStateToProps = state => ({
   conversations: state[Conversation_VM].conversations,
+  numOfUnReads: state[Conversation_VM].numOfUnReads,
 });
 
 const mapDispatchToProps = dispatch => ({
-  addConversations: v => dispatch[Conversation_VM].addConversations({ conversations: v }),
+  increaseNumOfUnread: v => dispatch[Conversation_VM].increaseNumOfUnread({ unreadCount: v }),
   receiveInvitation: v => dispatch[Contact_VM].receiveInvitation({ invitation: v }),
   changeInvitation: v => dispatch[Contact_VM].changeInvitation({ invitation: v }),
 });

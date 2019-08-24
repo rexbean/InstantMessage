@@ -3,8 +3,8 @@ import { Alert, Platform, ImageBackground, Text, StyleSheet } from 'react-native
 
 const styles = StyleSheet.create({
   icon: {
-    width: 18,
-    height: 18,
+    width: 20,
+    height: 20,
   },
 });
 
@@ -17,18 +17,18 @@ class NewMsgIcon extends Component {
 
   getFontSize() {
     const { count } = this.props;
-    let fontSize = 12
+    let fontSize = 15
     if (count.length === 2) {
-      fontSize = 11;
+      fontSize = 13;
     }
     const style = {
       textAlign: 'center',
       textAlignVertical: 'center',
       fontSize,
       color: 'white',
-      height: 20,
+      height: 22,
       ...Platform.select({
-        ios: { lineHeight: 18 },
+        ios: { lineHeight: 20 },
         android: {},
       }),
     };
