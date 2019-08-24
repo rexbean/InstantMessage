@@ -45,9 +45,8 @@ class UsreInfoScreen extends Component {
     const { navigation } = this.props;
     const { user } = this.state;
     // on Chat
-    const conversation = await LeanCloud.createConversation(user.username);
+    const conversation = await LeanCloud.createConversation([user.username]);
     navigation.navigate('Chat', {
-      user,
       conversation,
     });
   }

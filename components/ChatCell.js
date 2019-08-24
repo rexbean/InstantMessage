@@ -36,12 +36,14 @@ class ChatCell extends Component {
 
     this.onPress = this.onPress.bind(this);
     this.onMessage = this.onMessage.bind(this);
+    this.onRead = this.onRead.bind(this);
     this.getConversationName = this.getConversationName.bind(this);
     this.getConversationType = this.getConversationType.bind(this);
   }
 
   componentDidMount() {
     this.subscription = DeviceEventEmitter.addListener('message', this.onMessage);
+    this.subscription = DeviceEventEmitter.addListener('read', this.onRead);
   }
 
   onMessage({ message, conversation: newConvers }) {
@@ -52,6 +54,16 @@ class ChatCell extends Component {
       this.setState({
         unreadMessagesCount: newConvers.unreadMessagesCount,
         latestMsg: message._lctext,
+      });
+    }
+  }
+
+  onRead(convers) {
+    const { conversation } = this.props;
+    if (convers.id === conversation.id) {
+      console.log('found');
+      this.setState({
+        unreadMessagesCount: 0,
       });
     }
   }

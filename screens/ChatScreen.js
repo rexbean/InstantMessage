@@ -62,6 +62,9 @@ class ChatScreen extends Component {
     if (curConversation.id === conversation.id) {
       // add message to the messageSet
       addMessage(message);
+      DeviceEventEmitter.emit('decreaseCount', -1);
+      LeanCloud.read(conversation);
+      DeviceEventEmitter.emit('read', curConversation);
       if (this._flatList != null) {
         this._flatList.scrollToEnd();
       }

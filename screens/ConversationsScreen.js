@@ -90,8 +90,7 @@ class ConversationsScreen extends Component {
   }
 
   onNewConversation(conversation) {
-    const { addConversations } = this.props;
-    addConversations(conversation);
+    this.setState(prevState => ({ conversations: [conversation, ...prevState.conversations] }));
   }
 
   onMessage({ message, conversation }) {

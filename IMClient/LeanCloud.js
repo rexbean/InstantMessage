@@ -159,11 +159,11 @@ class LeanCloud {
     }
   }
 
-  async createConversation(user) {
+  async createConversation(users) {
     try {
       const conversation = await this.imClient.createConversation({
-        members: [user, this.username],
-        name: user,
+        members: [...users, this.username],
+        name: users.join(','),
         unique: true,
       });
       return conversation;
