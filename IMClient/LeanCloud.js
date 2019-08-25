@@ -2,8 +2,12 @@ import { DeviceEventEmitter, Alert } from 'react-native';
 import { Realtime, Event } from 'leancloud-realtime';
 // import { TypedMessagesPlugin } from 'leancloud-realtime-plugin-typed-messages';
 import { appId, appKey } from '../const';
-import { TextMessage,  MessageQueryDirection } from 'leancloud-realtime';
+import { TextMessage } from 'leancloud-realtime';
+import AV from 'leancloud-storage';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
+// here is for the installation push notification
+const Installation = require('leancloud-installation')(AV);
 
 class LeanCloud {
   constructor() {
@@ -13,11 +17,20 @@ class LeanCloud {
   }
 
   init() {
+    // Initialize the LeanCloud realtime
     this.realtime = new Realtime({
       appId,
       appKey,
       // plugins: [TypedMessagesPlugin],
     });
+
+    // Initialize leancloud-storage
+    AV.init({
+      appId,
+      appKey,
+    });
+
+    this.initIOSPush();
 
     this.realtime.on('disconnect', () => {
       DeviceEventEmitter.emit('disconnect', true);
@@ -40,21 +53,46 @@ class LeanCloud {
     });
   }
 
+  initIOSPush() {
+    PushNotificationIOS.addEventListener('register', this.onIOSRegister);
+    PushNotificationIOS.requestPermissions();
+  }
+
+  onIOSRegister = deviceToken => {
+    if (deviceToken) {
+      this.saveIOSInstallation(deviceToken);
+    }
+  };
+
+  saveIOSInstallation = deviceToken => {
+    const info = {
+      appTopic: 'com.rexbean',
+      deviceType: 'ios',
+      deviceToken,
+    };
+
+    Installation.getCurrent()
+      .then(installation => installation.save(info))
+      .then(result => console.log('save ios installation', result))
+      .catch(error => console.error(error));
+  };
+
   async login(username) {
     this.imClient = await this.realtime.createIMClient(username);
+    console.log('imClient', this.imClient);
     this.username = username;
     this.imClient.on(Event.MESSAGE, (message, conversation) => {
       // LocalNotification here with message and can be clicked to the specific conversation
-      try{
-        DeviceEventEmitter.emit('increaseCount', 1);
-        DeviceEventEmitter.emit('message', { message, conversation });
-        console.log('new message,', message._lctext);
-
-      } catch (e){
-        console.log('error', e);
+      DeviceEventEmitter.emit('increaseCount', 1);
+      DeviceEventEmitter.emit('message', { message, conversation });
+      let name = conversation.name;
+      if (conversation.members.length === 2) {
+        if (conversation.members[0] === this.username) {
+          name = conversation.members[1];
+        } else {
+          name = conversation.members[0];
+        }
       }
-
-
     });
 
     this.imClient.on(Event.INVITED, (payload, conversation) => {
@@ -223,6 +261,12 @@ class LeanCloud {
     }
   }
 
+  async sendImageMessage(conversation, image) {
+    try {
+      const msg = await
+    }
+  }
+
   async msgToString(message) {
     try {
       const msg = await this.imClient.parseMessage(message);
@@ -230,6 +274,10 @@ class LeanCloud {
     } catch (e) {
       throw e;
     }
+  }
+
+  getIMClient() {
+    return this.imClient;
   }
 }
 export default new LeanCloud();

@@ -35,7 +35,7 @@ class Avatar extends Component {
     this.countChange = this.countChange.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.subscription = DeviceEventEmitter.addListener('increaseCount', this.countChange);
     this.subscription = DeviceEventEmitter.addListener('decreaseCount', this.countChange);
   }

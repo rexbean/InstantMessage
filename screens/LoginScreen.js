@@ -97,6 +97,7 @@ class LoginScreen extends Component {
     // Login Successfully
     //try {
       await LeanCloud.login(username, password);
+      console.log('logged in');
       navigation.navigate('Main');
     // } catch (e) {
     //   Alert.alert(e);
