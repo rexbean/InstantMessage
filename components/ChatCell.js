@@ -46,14 +46,12 @@ class ChatCell extends Component {
     this.subscription = DeviceEventEmitter.addListener('read', this.onRead);
   }
 
-  onMessage({ message, conversation: newConvers }) {
+  onMessage({ message, conversation: newConvers, type }) {
     const { conversation } = this.props;
-    console.log('new message');
     if (newConvers.id === conversation.id) {
-      console.log('found');
       this.setState({
         unreadMessagesCount: newConvers.unreadMessagesCount,
-        latestMsg: message._lctext,
+        latestMsg: type === 'text' ? message.text : `[${type}]`,
       });
     }
   }
@@ -61,7 +59,6 @@ class ChatCell extends Component {
   onRead(convers) {
     const { conversation } = this.props;
     if (convers.id === conversation.id) {
-      console.log('found');
       this.setState({
         unreadMessagesCount: 0,
       });
@@ -69,7 +66,7 @@ class ChatCell extends Component {
   }
 
   async onPress() {
-    const { setReceiver, navigation, conversation } = this.props;
+    const { navigation, conversation } = this.props;
     const { unreadMessagesCount } = this.state;
 
     DeviceEventEmitter.emit('decreaseCount', -unreadMessagesCount);

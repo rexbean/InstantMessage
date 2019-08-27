@@ -46,22 +46,23 @@ class ChatScreen extends Component {
     // Get History Message
     try {
       clearMessage();
-      let messages = await LeanCloud.getHistory(curConversation);
+      const messages = await LeanCloud.getHistory(curConversation);
       messages.forEach(message => {
-        addMessage(message);
+        const type = LeanCloud.getMessageType(message);
+        addMessage({ content: message, type, success: true });
       });
     } catch (e) {
       Alert.alert(`Get History error ${e}`);
     }
   }
 
-  onMessage({ message, conversation }) {
+  onMessage({ message, conversation, type }) {
     const { curConversation } = this.state;
     const { addMessage } = this.props;
     // when receiving message
     if (curConversation.id === conversation.id) {
       // add message to the messageSet
-      addMessage(message);
+      addMessage({ content: message, type, result: true });
       DeviceEventEmitter.emit('decreaseCount', -1);
       LeanCloud.read(conversation);
       DeviceEventEmitter.emit('read', curConversation);
@@ -81,7 +82,7 @@ class ChatScreen extends Component {
           <View>
             <FlatList
               style={{ height: show ? '73%' : '93%' }}
-              ref={flatList => this._flatList=flatList}
+              ref={flatList => this._flatList = flatList}
               data={messageSet}
               renderItem={({ item }) => <MessageCell selfName={selfName} message={item} />}
               keyExtractor={item => item.id}
@@ -98,7 +99,7 @@ class ChatScreen extends Component {
           </View>
           {/* Bottom Menu */}
           <View style={{ height: show ? '20%' : '0%' }}>
-            <BottomMenu navigation={navigation} />
+            <BottomMenu navigation={navigation} conversation={curConversation} />
           </View>
         </View>
       </TouchableWithoutFeedback>

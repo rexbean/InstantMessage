@@ -4,8 +4,12 @@ export const PhotoPickerScreenVM = {
   state: {
     numOfChecked: 0,
     checked: {},
+    progress: 0,
   },
   reducers: {
+    changeProgress(state, { progress }) {
+      return { ...state, progress };
+    },
     onCheck(state, { checked }) {
       const newStatus = !state.checked[checked];
       let newNumOfChecked = 0;

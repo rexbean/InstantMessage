@@ -2,8 +2,15 @@ import { DeviceEventEmitter, Alert } from 'react-native';
 import { Realtime, Event } from 'leancloud-realtime';
 // import { TypedMessagesPlugin } from 'leancloud-realtime-plugin-typed-messages';
 import { appId, appKey } from '../const';
-import { TextMessage,  MessageQueryDirection } from 'leancloud-realtime';
-
+import { TextMessage } from 'leancloud-realtime';
+import AV from 'leancloud-storage';
+import {
+  ImageMessage,
+  AudioMessage,
+  VideoMessage,
+  LocationMessage,
+  FileMessage,
+} from 'leancloud-realtime-plugin-typed-messages';
 
 class LeanCloud {
   constructor() {
@@ -17,6 +24,10 @@ class LeanCloud {
       appId,
       appKey,
       // plugins: [TypedMessagesPlugin],
+    });
+    AV.init({
+      appId,
+      appKey,
     });
 
     this.realtime.on('disconnect', () => {
@@ -45,16 +56,15 @@ class LeanCloud {
     this.username = username;
     this.imClient.on(Event.MESSAGE, (message, conversation) => {
       // LocalNotification here with message and can be clicked to the specific conversation
-      try{
-        DeviceEventEmitter.emit('increaseCount', 1);
-        DeviceEventEmitter.emit('message', { message, conversation });
-        console.log('new message,', message._lctext);
+      const type = this.getMessageType(message);
+      console.log(`get a ${type} message`);
 
-      } catch (e){
+      try {
+        DeviceEventEmitter.emit('increaseCount', 1);
+        DeviceEventEmitter.emit('message', { message, conversation, type });
+      } catch (e) {
         console.log('error', e);
       }
-
-
     });
 
     this.imClient.on(Event.INVITED, (payload, conversation) => {
@@ -86,6 +96,26 @@ class LeanCloud {
         DeviceEventEmitter.emit('delete', { payload, conversation });
       }
     });
+  }
+
+  // get coming message type
+  getMessageType(message) {
+    switch (message.type) {
+      case TextMessage.TYPE:
+        return 'text';
+      case ImageMessage.TYPE:
+        return 'image';
+      case AudioMessage.TYPE:
+        return 'audio';
+      case FileMessage.TYPE:
+        return 'file';
+      case VideoMessage.TYPE:
+        return 'video';
+      case LocationMessage.TYPE:
+        return 'location';
+      default:
+        return '';
+    }
   }
 
   async getFriends() {
@@ -223,13 +253,31 @@ class LeanCloud {
     }
   }
 
-  async msgToString(message) {
-    try {
-      const msg = await this.imClient.parseMessage(message);
-      return msg._lctext;
-    } catch (e) {
-      throw e;
-    }
+  async sendImageMessage(conversation, image, filename) {
+    // try {
+    const file = new AV.File(filename, image);
+    console.log('created');
+    return file.save()
+      .then(savedFile => {
+        console.log('savedFile', savedFile);
+        const message = new ImageMessage(savedFile);
+        console.log('message created');
+        // create a thumbnail here and upload to AWS
+        // message.setText('url of the thumbnail');
+        return conversation.send(message);
+      })
+      .then(result => {
+        console.log('result', result);
+
+        return result;
+      })
+      .catch(e => {
+        console.log('error', e);
+        return false;
+      });
+    // } catch (e) {
+    //   throw e;
+    // }
   }
 }
 export default new LeanCloud();

@@ -40,8 +40,7 @@ class Avatar extends Component {
     this.subscription = DeviceEventEmitter.addListener('decreaseCount', this.countChange);
   }
 
-  componentWillUnmount(){
-    console.log('remove listener');
+  componentWillUnmount() {
     DeviceEventEmitter.removeListener('increaseCount');
     DeviceEventEmitter.removeListener('decreaseCount');
   }

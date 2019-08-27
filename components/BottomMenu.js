@@ -4,22 +4,21 @@ import { connect } from 'react-redux';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
 import AttachmentMenu from './AttachmentMenu';
 
-class BottomMenu extends Component {
-  render() {
-    const { content, show, navigation } = this.props;
-    if (show === false) {
-      return <View />;
-    }
-
-    if (content === 'attachment') {
-      return <AttachmentMenu navigation={navigation} />;
-    }
-    if (content === 'emoji') {
-      return <EmojiMenu />;
-    }
-    return null;
+const BottomMenu = props => {
+  const { content, show, navigation, conversation } = props;
+  if (show === false) {
+    return <View />;
   }
-}
+
+  if (content === 'attachment') {
+    return <AttachmentMenu navigation={navigation} conversation={conversation}/>;
+  }
+  if (content === 'emoji') {
+    return null;
+    // return <EmojiMenu />;
+  }
+  return null;
+};
 
 const mapStateToProps = state => ({
   show: state[Chat_VM].show,

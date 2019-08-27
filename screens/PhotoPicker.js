@@ -4,9 +4,9 @@ import { FlatGrid } from 'react-native-super-grid';
 import { CheckBox } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { PhotoPicker_VM } from '../stores/models/PhotoPickerScreenVM';
-import sendImageMessage from '../util/sendImageMessage';
-import getAbsolutePath from '../util/getAbsolutePath';
+import { getAbsolutePath, fileToBase64, generateFileName } from '../util/fileHelper';
 import { Chat_VM } from '../stores/models/ChatScreenVM';
+import LeanCloud from '../IMClient/LeanCloud';
 
 const styles = StyleSheet.create({
   container: {
@@ -83,24 +83,25 @@ class PhotoPicker extends Component {
       });
   }
 
-  send() {
-    const { checked, appKey, receiver, addMessage,navigation } = this.props;
-    Object.entries(checked).forEach(([key, value]) => {
+  async send() {
+    const { checked, addMessage, navigation } = this.props;
+    const { conversation } = this.props.navigation.state.params;
+    let i = 0;
+    Object.entries(checked).forEach(async ([key, value]) => {
       if (value) {
-        getAbsolutePath(key).then(path => {
-          sendImageMessage(
-            appKey,
-            receiver,
-            path,
-            msg => {
-              addMessage(msg);
-              navigation.goBack();
-            },
-            error => {
-              Alert.alert(error.code, error.description);
-            },
-          );
+
+        const path = await getAbsolutePath(key);
+        const file = await fileToBase64(path);
+        const data = { base64: file };
+        const filename = generateFileName(conversation, i);
+        console.log('begain to send');
+        LeanCloud.sendImageMessage(conversation, data, filename)
+          .then(result => {
+          console.log(result);
+          addMessage({ content: result, type: 'image', success: true });
+          navigation.goBack();
         });
+        i += 1;
       }
     });
   }
@@ -136,7 +137,7 @@ class PhotoPicker extends Component {
   }
 
   render() {
-    const { numOfChecked, checked } = this.props;
+    const { progress, numOfChecked, checked } = this.props;
     return (
       <View style={styles.container}>
         <Button title = {`send(${numOfChecked}/3)`} onPress = {this.send} />
@@ -168,10 +169,12 @@ const mapStateToProps = state => ({
   checked: state[PhotoPicker_VM].checked,
   numOfChecked: state[PhotoPicker_VM].numOfChecked,
   receiver: state[Chat_VM].receiver,
+  progress: state[PhotoPicker_VM].progress,
   appKey: state[Chat_VM].appKey,
 });
 
 const mapDispatchToProps = dispatch => ({
+  changeProgress: v => dispatch[PhotoPicker_VM].changeProgress({ progress: v }),
   onCheck: v => dispatch[PhotoPicker_VM].onCheck({ checked: v }),
   addMessage: v => dispatch[Chat_VM].addMessage({ message: v }),
 });

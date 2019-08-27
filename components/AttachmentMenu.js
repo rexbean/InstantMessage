@@ -36,9 +36,11 @@ class AttachmentMenu extends Component {
   }
 
   sendImage() {
-    const { setShow, navigation } = this.props;
+    const { setShow, navigation, conversation } = this.props;
     setShow(false);
-    navigation.navigate('PhotoPicker');
+    navigation.navigate('PhotoPicker', {
+      conversation,
+    });
   }
 
   sendVoice() {

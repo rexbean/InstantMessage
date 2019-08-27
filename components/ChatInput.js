@@ -47,10 +47,11 @@ class ChatInput extends Component {
     const { conversation, message, addMessage, changeMessage, _flatList } = this.props;
     try {
       const msg = await LeanCloud.sendTextMessage(conversation, message);
-      addMessage(msg);
+      addMessage({ content: msg, type: 'text', success: true });
       changeMessage('');
       _flatList.scrollToEnd();
     } catch (e) {
+      addMessage({ content: message, type: 'text', success: false });
       Alert.alert(e);
     }
   }
@@ -90,7 +91,7 @@ class ChatInput extends Component {
             <Image source={require('../assets/images/Emoji.png')} style={[styles.icon]} />
           </TouchableOpacity>
           {/* Send Button */}
-          <TouchableOpacity onPress={()=>this.onSend()}>
+          <TouchableOpacity onPress={() => this.onSend()}>
             <Image source={require('../assets/images/Send.png')} style={[styles.icon]} />
           </TouchableOpacity>
         </View>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Image, Alert } from 'react-native';
 import LeanCloud from '../IMClient/LeanCloud';
+import { ImageMessage } from 'leancloud-realtime-plugin-typed-messages';
 
 const styles = StyleSheet.create({
   from: {
@@ -28,23 +29,11 @@ class MessageCell extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      strMsg: null,
-      messageIn: props.message.from !== props.selfName,
-      from: props.message.from,
+      messageIn: props.message.content.from !== props.selfName,
+      from: props.message.content.from,
     };
 
     this.getMessageStyle = this.getMessageStyle.bind(this);
-  }
-
-  async componentDidMount() {
-    const { message } = this.props;
-    try {
-      const strMsg = await LeanCloud.msgToString(message);
-      this.setState({ strMsg });
-    } catch (e) {
-      Alert.alert('Convert Message Error', e);
-    }
-    return null;
   }
 
   getMessageStyle(messageIn) {
@@ -70,28 +59,29 @@ class MessageCell extends Component {
     };
   }
 
-
-
   render() {
-    const { messageIn, strMsg, from } = this.state;
+    const { messageIn, from } = this.state;
+    const { message } = this.props;
     const msg = [];
-    // if (message.type === 'image') {
-    //   msg.push(
-    //     <Image
-    //       style={{
-    //         ...(messageIn ? this.getMessageStyle(true) : this.getMessageStyle(false)),
-    //         width: 90,
-    //         height: 90,
-    //       }}
-    //       source={{uri: message.thumbPath}} />
-    //   );
-    // } else if (message.type === 'text') {
-
-    msg.push(
-      <Text style={messageIn ? this.getMessageStyle(true) : this.getMessageStyle(false)}>
-        {strMsg === null ? '' : strMsg}
-      </Text>,
-    );
+    if (message.type === 'image') {
+      msg.push(
+        <Image
+          style={{
+            ...(messageIn ? this.getMessageStyle(true) : this.getMessageStyle(false)),
+            width: 90,
+            height: 90,
+          }}
+          source={{ uri: message.content.getFile() }}
+        />,
+        // source={{uri: message.getText()}} />
+      );
+    } else if (message.type === 'text') {
+      msg.push(
+        <Text style={messageIn ? this.getMessageStyle(true) : this.getMessageStyle(false)}>
+          {message.content.text === undefined ? '' : message.content.text};
+        </Text>,
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={messageIn ? styles.messageIn : styles.messageOut}>
